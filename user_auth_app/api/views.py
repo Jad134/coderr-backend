@@ -13,7 +13,7 @@ from django.contrib.auth import get_user_model
 
 class RegisterUserView(APIView):
     """
-    View zur Benutzerregistrierung.
+    User registration view.
     """
     def post(self, request, *args, **kwargs):
 
@@ -40,9 +40,10 @@ class RegisterUserView(APIView):
 
     def check_password(self, password, repeated_password):
         """
-        Überprüft, ob die Passwörter übereinstimmen und ob sie nicht leer sind.
-        Gibt eine Response zurück, wenn ein Fehler gefunden wird, andernfalls None.
+        Checks whether the passwords match and whether they are not empty.
+        Returns a Response if an error is found, otherwise None.
         """
+
         if not password or not repeated_password:
             return Response(
                 {"error": "Passwort und Wiederholung des Passworts sind erforderlich."},
@@ -55,7 +56,7 @@ class RegisterUserView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        return None  # Keine Fehler, also Rückgabe von None
+        return None  
     
     def create_user(self, data):
         User = get_user_model()
@@ -71,6 +72,9 @@ class RegisterUserView(APIView):
     
 
 class LoginView(ObtainAuthToken):
+    """
+    User registration view.
+    """
     def post(self, request, *args, **kwargs):
 
         serializer = self.serializer_class(data=request.data, context={'request': request})

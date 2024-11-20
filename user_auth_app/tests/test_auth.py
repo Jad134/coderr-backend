@@ -10,7 +10,7 @@ class RegisterTest(APITestCase):
 
     def test_register_success(self):
        """
-       Testet eine erfolgreiche Benutzerregistrierung.
+       Tests successful user registration.
        """
 
        data = {
@@ -28,13 +28,12 @@ class RegisterTest(APITestCase):
        self.assertIsNotNone(user)
        self.assertEqual(user.email, "janedoe@example.com")
        self.assertEqual(user.type, "customer")
-       self.assertTrue(user.check_password("securepassword123"))  # Überprüfen, ob das Passwort korrekt gehasht wurde
-
+       self.assertTrue(user.check_password("securepassword123")) 
 
 
     def test_register_password_mismatch(self):
         """
-        Testet, ob die Registrierung fehlschlägt, wenn die Passwörter nicht übereinstimmen.
+        Tests whether registration fails if passwords do not match.
         """
         data = {
             "username": "JaneDoe",
@@ -45,8 +44,6 @@ class RegisterTest(APITestCase):
         }
 
         response = self.client.post(self.register_url, data)
-
-        # Teste, ob die Antwort einen Fehler zurückgibt
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("Passwörter stimmen nicht überein.", response.data.get("error", ""))
 
