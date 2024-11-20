@@ -1,5 +1,5 @@
 import copy
-from django.shortcuts import render
+from django.shortcuts import render,get_object_or_404
 from user_auth_app.models import CustomUser
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -8,6 +8,9 @@ from .serializers import UserSerializer
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import get_user_model
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+
 
 
 
@@ -94,3 +97,13 @@ class LoginView(ObtainAuthToken):
 
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class UserViewSet(viewsets.ViewSet):
+    queryset = CustomUser.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def retrieve(self, request, pk=None):
+        user= get_object_or_404(self.queryset, pk=pk)
+        serializer = UserSerializer(user)
+        return Response (serializer.data)
+    
