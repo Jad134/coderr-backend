@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.core.exceptions import ValidationError
 
 class Offer(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='offers', on_delete=models.CASCADE)
@@ -10,6 +11,11 @@ class Offer(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     min_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     min_delivery_time = models.PositiveIntegerField(blank=True, null=True)
+
+    def clean(self):
+        # Validierung sicherstellen, dass nur Business-Benutzer Angebote erstellen können
+        if self.user.user_type != 'business':
+            raise ValidationError('Nur Business-Nutzer können Angebote erstellen.')
 
     def __str__(self):
         return self.title
