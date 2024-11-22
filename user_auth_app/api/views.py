@@ -122,4 +122,22 @@ class UserViewSet(viewsets.ViewSet):
             serializer.save()  
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class BusinessUserViewSet(viewsets.ViewSet):
+    def list(self, request):
+        business_users = CustomUser.objects.filter(type=CustomUser.BUSINESS)
+        
+        serializer = UserSerializer(business_users, many=True)
+        
+        # Gebe die serialisierten Daten zurück
+        return Response(serializer.data)
+    
+class CustomerUserViewSet(viewsets.ViewSet):
+    def list(self, request):
+        customer_users = CustomUser.objects.filter(type=CustomUser.CUSTOMER)
+        
+        serializer = UserSerializer(customer_users, many=True)
+        
+        # Gebe die serialisierten Daten zurück
+        return Response(serializer.data)
     
