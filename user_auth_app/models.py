@@ -17,11 +17,12 @@ class  CustomUser(AbstractUser):
     )
     first_name = models.CharField(max_length=150, blank=True, verbose_name="Vorname")
     last_name = models.CharField(max_length=150, blank=True, verbose_name="Nachname")
-    profile_picture = models.FileField(upload_to="profile_pictures/", blank=True, null=True, verbose_name="Profilbild")
+    file = models.FileField(upload_to="profile_pictures/", blank=True, null=True, verbose_name="Profilbild")
     location = models.CharField(max_length=255, blank=True, verbose_name="Standort")
     tel = models.CharField(max_length=20, blank=True, verbose_name="Telefonnummer")
     description = models.TextField(blank=True, verbose_name="Beschreibung")
     working_hours = models.CharField(max_length=255, blank=True, verbose_name="Arbeitszeiten")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Erstellt am")
 
     def __str__(self):
         return f"{self.username} ({self.get_type_display()})"

@@ -107,3 +107,22 @@ class UserViewSet(viewsets.ViewSet):
         serializer = UserSerializer(user)
         return Response (serializer.data)
     
+    def partial_update(self, request, pk=None):
+        # Verwende den authentifizierten Benutzer, um das Profil zu aktualisieren
+        user = request.user  # Hier holen wir den authentifizierten Benutzer (durch Login-Token oder Session)
+
+        # Stelle sicher, dass der Benutzer nur sein eigenes Profil bearbeitet
+        if str(user.pk) != str(pk):
+            return Response({'error': 'Nicht berechtigt, dieses Profil zu bearbeiten.'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Hole das Benutzerobjekt basierend auf der ID des authentifizierten Benutzers
+        user = get_object_or_404(self.queryset, pk=user.pk)
+
+        # Verwende den Serializer, um die Daten zu validieren und zu speichern
+        serializer = UserSerializer(user, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()  # Speichern der geänderten Daten
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
