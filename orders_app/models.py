@@ -1,6 +1,13 @@
 from django.db import models
 from django.conf import settings
 
+class OrderManager(models.Manager):
+    def for_business(self):
+        return self.filter(business_user__type='business')
+
+    def for_customer(self):
+        return self.filter(customer_user__type='customer')
+
 class Order(models.Model):
     # Die Beziehung zu den Benutzer-Modellen
     customer_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='customer_orders', on_delete=models.CASCADE)

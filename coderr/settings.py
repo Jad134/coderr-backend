@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'user_auth_app',
     'rest_framework.authtoken',
     'corsheaders',
-    'orders_app'
+    'orders_app',
+    'offers_app',
 ]
 
 MIDDLEWARE = [
