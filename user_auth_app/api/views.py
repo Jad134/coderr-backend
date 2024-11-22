@@ -80,23 +80,25 @@ class LoginView(ObtainAuthToken):
     """
     def post(self, request, *args, **kwargs):
 
-        serializer = self.serializer_class(data=request.data, context={'request': request})
-        if serializer.is_valid():
-            user = serializer.validated_data['user']  
-            token, created = Token.objects.get_or_create(user=user)  
+        username = request.data.get('username', '').lower()
 
+        try:
+            user = CustomUser.objects.get(username__iexact=username)  # 'iexact' for case-insensitive comparison
+        except CustomUser.DoesNotExist:
+            return Response({"error": "Benutzername oder Passwort ungültig."}, status=status.HTTP_400_BAD_REQUEST)
 
-            
-            return Response({
-                "token": token.key,
-                "user_id": user.id,
-                "username": user.username,
-                "email": user.email,
-                "type": user.type,  
-            }, status=status.HTTP_200_OK)
+        if not user.check_password(request.data.get('password')):
+            return Response({"error": "Benutzername oder Passwort ungültig."}, status=status.HTTP_400_BAD_REQUEST)
 
+        token, created = Token.objects.get_or_create(user=user)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({
+            "token": token.key,
+            "user_id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "type": user.type, 
+        }, status=status.HTTP_200_OK)
     
 class UserViewSet(viewsets.ViewSet):
     queryset = CustomUser.objects.all()
@@ -108,21 +110,16 @@ class UserViewSet(viewsets.ViewSet):
         return Response (serializer.data)
     
     def partial_update(self, request, pk=None):
-        # Verwende den authentifizierten Benutzer, um das Profil zu aktualisieren
-        user = request.user  # Hier holen wir den authentifizierten Benutzer (durch Login-Token oder Session)
+        user = request.user  
 
-        # Stelle sicher, dass der Benutzer nur sein eigenes Profil bearbeitet
         if str(user.pk) != str(pk):
             return Response({'error': 'Nicht berechtigt, dieses Profil zu bearbeiten.'}, status=status.HTTP_403_FORBIDDEN)
 
-        # Hole das Benutzerobjekt basierend auf der ID des authentifizierten Benutzers
         user = get_object_or_404(self.queryset, pk=user.pk)
-
-        # Verwende den Serializer, um die Daten zu validieren und zu speichern
         serializer = UserSerializer(user, data=request.data, partial=True)
 
         if serializer.is_valid():
-            serializer.save()  # Speichern der geänderten Daten
+            serializer.save()  
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
