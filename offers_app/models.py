@@ -14,7 +14,7 @@ class Offer(models.Model):
 
     def clean(self):
         # Validierung sicherstellen, dass nur Business-Benutzer Angebote erstellen können
-        if self.user.user_type != 'business':
+        if self.user.type != 'business':
             raise ValidationError('Nur Business-Nutzer können Angebote erstellen.')
 
     def __str__(self):
