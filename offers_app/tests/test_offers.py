@@ -50,3 +50,20 @@ class OfferViewSetTest(APITestCase):
         self.assertEqual(len(response.data["results"]), 1)
         self.assertEqual(response.data["results"][0]["title"], "Offer 1")
         self.assertEqual(response.data["results"][0]["user"], self.user1.id)
+
+    def test_create_offer_success(self):
+        """
+        Tests successful creation of an offer.
+        """
+        data = {
+            "title": "New Offer",
+            "description": "New description",
+            "min_price": 50.00,
+            "min_delivery_time": 7,
+        }
+
+        response = self.client.post(self.offers_url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["title"], "New Offer")
+        self.assertEqual(response.data["user"], self.user1.id)
