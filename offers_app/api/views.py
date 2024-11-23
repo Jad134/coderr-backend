@@ -17,7 +17,7 @@ class OfferViewSet(viewsets.ViewSet):
         """Create an new offer."""
         serializer = OfferSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(user=request.user)  # Aktuellen Benutzer als Ersteller setzen
+            serializer.save(user=request.user)  
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
@@ -27,6 +27,23 @@ class OfferViewSet(viewsets.ViewSet):
         page = paginator.paginate_queryset(queryset, request)
         serializer = OfferSerializer(page, many=True)
         return paginator.get_paginated_response(serializer.data)
+    
+    def partial_update(self, request, pk=None):
+        queryset = Offer.objects.all()
+        offer = get_object_or_404(queryset, pk=pk)  
+        serializer = OfferSerializer(offer, data=request.data, partial=True)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def retrieve(self, request, pk=None):
+        queryset = Offer.objects.all()
+        offer = get_object_or_404(queryset, pk=pk)
+        serializer = OfferSerializer(offer)
+        return Response(serializer.data)
+
     
 class OfferDetailViewSet(viewsets.ViewSet):
     queryset = OfferDetail.objects.all()
