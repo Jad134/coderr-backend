@@ -23,6 +23,9 @@ class OfferViewSet(viewsets.ViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def list(self, request):
+        """
+        Get offer list with queryset for filter methods in Frontend Code e.g only show own offers with creator_id
+        """
         queryset = Offer.objects.prefetch_related('details')
         creator_id = request.query_params.get('creator_id')
         if creator_id:
@@ -35,13 +38,16 @@ class OfferViewSet(viewsets.ViewSet):
         max_delivery_time = request.query_params.get('max_delivery_time')
         if max_delivery_time:
             queryset = queryset.filter(min_delivery_time__lte=max_delivery_time)
-            
+
         paginator = self.pagination_class()
         page = paginator.paginate_queryset(queryset, request)
         serializer = OfferSerializer(page, many=True)
         return paginator.get_paginated_response(serializer.data)
     
     def partial_update(self, request, pk=None):
+        """
+        allow partial updates for offers. The offerSerializer allows to update the details.
+        """
         queryset = Offer.objects.all()
         offer = get_object_or_404(queryset, pk=pk)  
         serializer = OfferSerializer(offer, data=request.data, partial=True)
@@ -52,13 +58,39 @@ class OfferViewSet(viewsets.ViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def retrieve(self, request, pk=None):
+        """
+        Get chosen offer
+        """
         queryset = Offer.objects.all()
         offer = get_object_or_404(queryset, pk=pk)
         serializer = OfferSerializer(offer)
         return Response(serializer.data)
+    
+    def destroy(self, request, pk=None):
+        """
+        Deletes an offer only if the request user is the creator.
+        """
+        queryset = Offer.objects.all()
+        offer = get_object_or_404(queryset, pk=pk)
+
+        if offer.user != request.user:
+            return Response(
+                {"detail": "You do not have permission to delete this offer."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        offer.delete()
+        return Response(
+            {"detail": "Offer successfully deleted."},
+            status=status.HTTP_204_NO_CONTENT
+        )
+
 
     
 class OfferDetailViewSet(viewsets.ViewSet):
+    """
+    Get an offer Detail
+    """
     queryset = OfferDetail.objects.all()
     def retrieve(self, request, pk=None):
         detail = get_object_or_404(self.queryset, pk=pk)
