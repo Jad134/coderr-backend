@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework.filters import OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 
+
 class OfferPagination(PageNumberPagination):
     page_size = 6 # Anzahl der Einträge pro Seite
 
@@ -23,6 +24,18 @@ class OfferViewSet(viewsets.ViewSet):
     
     def list(self, request):
         queryset = Offer.objects.prefetch_related('details')
+        creator_id = request.query_params.get('creator_id')
+        if creator_id:
+            queryset = queryset.filter(user_id=creator_id)
+
+        min_price = request.query_params.get('min_price')
+        if min_price:
+            queryset = queryset.filter(min_price__gte=min_price)
+
+        max_delivery_time = request.query_params.get('max_delivery_time')
+        if max_delivery_time:
+            queryset = queryset.filter(min_delivery_time__lte=max_delivery_time)
+            
         paginator = self.pagination_class()
         page = paginator.paginate_queryset(queryset, request)
         serializer = OfferSerializer(page, many=True)
