@@ -39,7 +39,7 @@ class OfferDetail(models.Model):
     features = models.JSONField()  # Features als JSON (Liste der Features)
 
     def __str__(self):
-        return f"{self.offer_type.capitalize()} Detail: {self.title}"
+        return f"{self.offer_type.capitalize()} Offer : {self.offer}"
 
     class Meta:
         ordering = ['offer_type']
