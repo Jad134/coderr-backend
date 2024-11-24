@@ -152,20 +152,7 @@ class ReviewViewSet(viewsets.ViewSet):
         GET /reviews/
         List reviews with optional filters and ordering.
         """
-        queryset = Review.objects.all()
-
-        business_user_id = request.query_params.get('business_user_id')
-        if business_user_id:
-            queryset = queryset.filter(business_user_id=business_user_id)
-
-        reviewer_id = request.query_params.get('reviewer_id')
-        if reviewer_id:
-            queryset = queryset.filter(reviewer_id=reviewer_id)
-
-        ordering = request.query_params.get('ordering', '-updated_at')
-        if ordering in ['rating', '-rating', 'updated_at', '-updated_at']:
-            queryset = queryset.order_by(ordering)
-
+        queryset = self.get_filtered_reviews(request)
         serializer = ReviewSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -175,19 +162,50 @@ class ReviewViewSet(viewsets.ViewSet):
         Create a review for a business user. Only customers can create reviews.
         """
         self.permission_classes = [IsAuthenticated, IsCustomer]
+        business_user = self.get_valid_business_user(request)
+        if isinstance(business_user, Response):
+            return business_user
+        if self.review_already_exists(business_user, request.user):
+            return Response(
+                {'detail': 'You have already reviewed this business user.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return self.save_review(request, business_user)
 
+    def get_filtered_reviews(self, request):
+        queryset = Review.objects.all()
+        business_user_id = request.query_params.get('business_user_id')
+        if business_user_id:
+            queryset = queryset.filter(business_user_id=business_user_id)
+        reviewer_id = request.query_params.get('reviewer_id')
+        if reviewer_id:
+            queryset = queryset.filter(reviewer_id=reviewer_id)
+        ordering = request.query_params.get('ordering', '-updated_at')
+        if ordering in ['rating', '-rating', 'updated_at', '-updated_at']:
+            queryset = queryset.order_by(ordering)
+        return queryset
+
+    def get_valid_business_user(self, request):
         business_user_id = request.data.get('business_user_id')
         if not business_user_id:
-            return Response({'detail': 'business_user_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
-
+            return Response(
+                {'detail': 'business_user_id is required.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         try:
-            business_user = CustomUser.objects.get(id=business_user_id, type='business')
+            return CustomUser.objects.get(id=business_user_id, type='business')
         except CustomUser.DoesNotExist:
-            return Response({'detail': 'Invalid business_user_id.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'detail': 'Invalid business_user_id.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        if Review.objects.filter(business_user=business_user, reviewer=request.user).exists():
-            return Response({'detail': 'You have already reviewed this business user.'}, status=status.HTTP_400_BAD_REQUEST)
+    def review_already_exists(self, business_user, reviewer):
+        return Review.objects.filter(
+            business_user=business_user, reviewer=reviewer
+        ).exists()
 
+    def save_review(self, request, business_user):
         serializer = ReviewSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(business_user=business_user, reviewer=request.user)
