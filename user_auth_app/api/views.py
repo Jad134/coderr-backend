@@ -1,15 +1,16 @@
 import copy
 from django.shortcuts import render,get_object_or_404
-from user_auth_app.models import CustomUser
+from user_auth_app.models import CustomUser, Review
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import UserSerializer
+from .serializers import BusinessUserSerializer, CustomerUserSerializer, ReviewSerializer, UserSerializer
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import get_user_model
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
+from .permissions import IsCustomer
 
 
 
@@ -125,19 +126,70 @@ class UserViewSet(viewsets.ViewSet):
 
 class BusinessUserViewSet(viewsets.ViewSet):
     def list(self, request):
-        business_users = CustomUser.objects.filter(type=CustomUser.BUSINESS)
+        business_users = CustomUser.objects.filter(type=CustomUser.BUSINESS) 
+        serializer = BusinessUserSerializer(business_users, many=True)
         
-        serializer = UserSerializer(business_users, many=True)
-        
-        # Gebe die serialisierten Daten zurück
         return Response(serializer.data)
+
     
 class CustomerUserViewSet(viewsets.ViewSet):
     def list(self, request):
         customer_users = CustomUser.objects.filter(type=CustomUser.CUSTOMER)
-        
-        serializer = UserSerializer(customer_users, many=True)
-        
-        # Gebe die serialisierten Daten zurück
+        serializer = CustomerUserSerializer(customer_users, many=True)
+
         return Response(serializer.data)
+
     
+
+
+class ReviewViewSet(viewsets.ViewSet):
+    """
+    A simple ViewSet for listing or creating reviews.
+    """
+
+    def list(self, request):
+        """
+        GET /reviews/
+        List reviews with optional filters and ordering.
+        """
+        queryset = Review.objects.all()
+
+        business_user_id = request.query_params.get('business_user_id')
+        if business_user_id:
+            queryset = queryset.filter(business_user_id=business_user_id)
+
+        reviewer_id = request.query_params.get('reviewer_id')
+        if reviewer_id:
+            queryset = queryset.filter(reviewer_id=reviewer_id)
+
+        ordering = request.query_params.get('ordering', '-updated_at')
+        if ordering in ['rating', '-rating', 'updated_at', '-updated_at']:
+            queryset = queryset.order_by(ordering)
+
+        serializer = ReviewSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def create(self, request):
+        """
+        POST /reviews/
+        Create a review for a business user. Only customers can create reviews.
+        """
+        self.permission_classes = [IsAuthenticated, IsCustomer]
+
+        business_user_id = request.data.get('business_user_id')
+        if not business_user_id:
+            return Response({'detail': 'business_user_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            business_user = CustomUser.objects.get(id=business_user_id, type='business')
+        except CustomUser.DoesNotExist:
+            return Response({'detail': 'Invalid business_user_id.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if Review.objects.filter(business_user=business_user, reviewer=request.user).exists():
+            return Response({'detail': 'You have already reviewed this business user.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = ReviewSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(business_user=business_user, reviewer=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
