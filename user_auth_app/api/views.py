@@ -144,8 +144,15 @@ class CustomerUserViewSet(viewsets.ViewSet):
 
 class ReviewViewSet(viewsets.ViewSet):
     """
-    A simple ViewSet for listing or creating reviews.
+    A simple ViewSet for get or creating reviews.
     """
+    
+    queryset = Review.objects.all()
+
+    def retrieve(self, request, pk=None):
+        review= get_object_or_404(self.queryset, pk=pk)
+        serializer = ReviewSerializer(review)
+        return Response (serializer.data)
 
     def list(self, request):
         """
