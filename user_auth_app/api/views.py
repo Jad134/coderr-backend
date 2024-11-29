@@ -178,6 +178,28 @@ class ReviewViewSet(viewsets.ViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         return self.save_review(request, business_user)
+    
+
+    def partial_update(self, request, pk=None):
+        """
+        PATCH /reviews/<pk>/
+        Partially update a review.
+        """
+        review = get_object_or_404(self.queryset, pk=pk)
+
+        if review.reviewer != request.user:
+            return Response(
+                {"detail": "Sie sind nicht berechtigt, diese Bewertung zu bearbeiten."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        serializer = ReviewSerializer(review, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
     def get_filtered_reviews(self, request):
         queryset = Review.objects.all()
