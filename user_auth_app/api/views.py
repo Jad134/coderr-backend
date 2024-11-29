@@ -193,7 +193,7 @@ class ReviewViewSet(viewsets.ViewSet):
         return queryset
 
     def get_valid_business_user(self, request):
-        business_user_id = request.data.get('business_user_id')
+        business_user_id = request.data.get('business_user')
         if not business_user_id:
             return Response(
                 {'detail': 'business_user_id is required.'},
