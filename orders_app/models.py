@@ -22,7 +22,7 @@ class Order(models.Model):
     OFFER_TYPE_CHOICES = [
         ('basic', 'Basic'),
         ('premium', 'Premium'),
-        ('exclusive', 'Exclusive'),
+        ('standard', 'Standard'),
     ]
     offer_type = models.CharField(max_length=20, choices=OFFER_TYPE_CHOICES, default='basic')
 
