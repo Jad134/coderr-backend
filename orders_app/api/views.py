@@ -28,7 +28,7 @@ class OrderViewSet(viewsets.ViewSet):
         POST /orders/
         Create an new Order based on OfferDetail.
         """
-        # Authentifizierung sicherstellen
+
         customer_user = request.user
         if customer_user.type != 'customer':
             return Response(
@@ -36,7 +36,6 @@ class OrderViewSet(viewsets.ViewSet):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        # `offer_detail_id` aus dem Anfrage-Body validieren
         offer_detail_id = request.data.get('offer_detail_id')
         if not offer_detail_id:
             return Response(
@@ -44,13 +43,10 @@ class OrderViewSet(viewsets.ViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # OfferDetail-Objekt abrufen und prüfen
         offer_detail = get_object_or_404(OfferDetail, id=offer_detail_id)
-
-        # Anbieter des Angebots (Business-User) abrufen
         business_user = offer_detail.offer.user
 
-        # Bestellung erstellen
+        # Create Order
         order_data = {
             "customer_user": customer_user.id,
             "business_user": business_user.id,
