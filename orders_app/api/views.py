@@ -7,6 +7,9 @@ from orders_app.models import Order
 from rest_framework.response import Response
 from rest_framework.filters import OrderingFilter
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.views import APIView
+
+from user_auth_app.models import CustomUser
 
 
 class OrderViewSet(viewsets.ViewSet):
@@ -109,3 +112,15 @@ class OrderViewSet(viewsets.ViewSet):
         serializer = OrderSerializer(order)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+
+
+
+class OrderCountView(APIView):
+    """
+    API endpoint to get the count of in-progress orders for a business user.
+    """
+    def get(self, request, business_user_id):
+        business_user = get_object_or_404(CustomUser, id=business_user_id, type='business')
+        order_count = Order.objects.filter(business_user=business_user, status='in_progress').count()
+        
+        return Response({"order_count": order_count}, status=status.HTTP_200_OK)
