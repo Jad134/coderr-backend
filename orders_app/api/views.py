@@ -38,12 +38,14 @@ class OrderViewSet(viewsets.ViewSet):
        order_data = self.prepare_order_data(request.user, offer_detail)
        return self.create_order(order_data)
  
+ 
     def is_customer(self, user):
      return user.type == 'customer'
     
 
     def forbidden_response(self, message):
        return Response({'detail': message}, status=status.HTTP_403_FORBIDDEN)
+
 
     def bad_request_response(self, message):
        return Response({'detail': message}, status=status.HTTP_400_BAD_REQUEST)
