@@ -124,3 +124,17 @@ class OrderCountView(APIView):
         order_count = Order.objects.filter(business_user=business_user, status='in_progress').count()
         
         return Response({"order_count": order_count}, status=status.HTTP_200_OK)
+    
+
+class CompletedOrderCountView(APIView):
+    """
+    API endpoint to get the count of completed orders for a business user.
+    """
+    def get(self, request, business_user_id):
+        try:
+            business_user = CustomUser.objects.get(id=business_user_id, type='business')
+        except CustomUser.DoesNotExist:
+            return Response({"error": "Business user not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        order_count = Order.objects.filter(business_user=business_user, status='completed').count()
+        return Response({"completed_order_count": order_count}, status=status.HTTP_200_OK)
