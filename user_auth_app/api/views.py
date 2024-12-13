@@ -243,5 +243,15 @@ class ReviewViewSet(viewsets.ViewSet):
     
 
 class BaseInfoViewSet(viewsets.ViewSet):
-    pass
+    reviewCount = Review.objects.count()
+
+    def list(self, request):
+        return Response(
+            {
+              "review_count": self.reviewCount,
+              "average_rating": 4.6,
+              "business_profile_count": 45,
+              "offer_count": 150,
+            }
+ )
 
