@@ -11,6 +11,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsCustomer
+from django.db.models import Avg
 
 
 
@@ -243,15 +244,27 @@ class ReviewViewSet(viewsets.ViewSet):
     
 
 class BaseInfoViewSet(viewsets.ViewSet):
-    reviewCount = Review.objects.count()
+    """
+    A Viewset for the base informations of the db
+    """
 
     def list(self, request):
+        """
+        GET/base-info from the Databes to count based infos
+        """
+        reviewCount = Review.objects.count()
+        averageRating = self.get_average_rating()
         return Response(
             {
-              "review_count": self.reviewCount,
-              "average_rating": 4.6,
+              "review_count": reviewCount,
+              "average_rating": averageRating,
               "business_profile_count": 45,
               "offer_count": 150,
-            }
- )
+            })
+    
+    def get_average_rating(self):
+        average_rating = Review.objects.aggregate(Avg('rating')).get('rating__avg') or 0
+        average_rating = round(average_rating, 1) 
+
+        return average_rating
 
