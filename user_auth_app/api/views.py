@@ -240,3 +240,8 @@ class ReviewViewSet(viewsets.ViewSet):
             serializer.save(business_user=business_user, reviewer=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class BaseInfoViewSet(viewsets.ViewSet):
+    pass
+

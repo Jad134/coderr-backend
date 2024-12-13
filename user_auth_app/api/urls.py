@@ -1,5 +1,5 @@
 from django.urls import path, include
-from user_auth_app.api.views import RegisterUserView, LoginView, UserViewSet, BusinessUserViewSet, CustomerUserViewSet, ReviewViewSet
+from user_auth_app.api.views import RegisterUserView, LoginView, UserViewSet, BusinessUserViewSet, CustomerUserViewSet, ReviewViewSet, BaseInfoViewSet
 from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework import routers
 
@@ -13,5 +13,6 @@ urlpatterns = [
     path('', include(router.urls)),
     path('registration/', RegisterUserView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
+    path('base-info/', BaseInfoViewSet.as_view(), name='base-info'),
 
 ]
