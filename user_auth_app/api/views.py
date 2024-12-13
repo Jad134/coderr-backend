@@ -12,6 +12,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsCustomer
 from django.db.models import Avg
+from offers_app.models import Offer
 
 
 
@@ -255,12 +256,15 @@ class BaseInfoViewSet(viewsets.ViewSet):
         reviewCount = Review.objects.count()
         averageRating = self.get_average_rating()
         bussinessProfileCount = CustomUser.objects.filter(type=CustomUser.BUSINESS).count() 
+        offerCount = Offer.objects.count(
+
+        )
         return Response(
             {
               "review_count": reviewCount,
               "average_rating": averageRating,
               "business_profile_count": bussinessProfileCount,
-              "offer_count": 150,
+              "offer_count": offerCount,
             })
     
     def get_average_rating(self):
