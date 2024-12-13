@@ -8,11 +8,10 @@ router.register(r'profile', UserViewSet, basename='profile')
 router.register(r'profiles/business', BusinessUserViewSet, basename='business-user')
 router.register(r'profiles/customer', CustomerUserViewSet, basename='customer-user')
 router.register(r'reviews',ReviewViewSet, basename='reviews')
+router.register(r'base-info', BaseInfoViewSet, basename='base-info')
 
 urlpatterns = [
     path('', include(router.urls)),
     path('registration/', RegisterUserView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
-    path('base-info/', BaseInfoViewSet.as_view(), name='base-info'),
-
 ]
