@@ -254,11 +254,12 @@ class BaseInfoViewSet(viewsets.ViewSet):
         """
         reviewCount = Review.objects.count()
         averageRating = self.get_average_rating()
+        bussinessProfileCount = CustomUser.objects.filter(type=CustomUser.BUSINESS).count() 
         return Response(
             {
               "review_count": reviewCount,
               "average_rating": averageRating,
-              "business_profile_count": 45,
+              "business_profile_count": bussinessProfileCount,
               "offer_count": 150,
             })
     
