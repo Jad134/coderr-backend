@@ -33,3 +33,27 @@ class ReviewTests(APITestCase):
         self.assertEqual(Review.objects.count(), 1)
         self.assertEqual(Review.objects.first().rating, 5)
         self.assertEqual(Review.objects.first().description, "Great service!")
+
+
+    def test_create_duplicate_review(self):
+        """
+        Test that a customer cannot create multiple reviews for the same business user.
+        """
+        # Create an initial review
+        Review.objects.create(
+            reviewer=self.customer_user,
+            business_user=self.business_user,
+            rating=5,
+            description="Great service!"
+        )
+        
+        payload = {
+            "business_user": self.business_user.id,
+            "rating": 4,
+            "description": "Good, but not perfect!"
+        }
+        
+        response = self.client.post(self.review_url, payload, format="json")
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data["detail"], "You have already reviewed this business user.")
+        self.assertEqual(Review.objects.count(), 1)  # Ensure no duplicate reviews were added        

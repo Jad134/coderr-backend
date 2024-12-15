@@ -47,7 +47,7 @@ class Review(models.Model):
     )
     rating = models.PositiveSmallIntegerField(validators=[
             MaxValueValidator(5)
-        ])  # z. B. 1-5
+        ])  
     description = models.TextField(verbose_name="Beschreibung", blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
