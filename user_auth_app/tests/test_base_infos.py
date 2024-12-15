@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
+from user_auth_app.models import Review
 
 
 class ReviewTests(APITestCase):
@@ -17,10 +18,18 @@ class ReviewTests(APITestCase):
         self.review_url = reverse("reviews-list")
 
 
-    def test_create_review(self):
+    def test_create_review_success(self):
         """
-        Test create an Review
+        Test that a customer can create a review for a business user.
         """
-
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token_1.key)
-        url = reverse('base-info', kwargs={'pk': self.user_1.pk})
+        payload = {
+            "business_user": self.business_user.id,
+            "rating": 5,
+            "description": "Great service!"
+        }
+        
+        response = self.client.post(self.review_url, payload, format="json")
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Review.objects.count(), 1)
+        self.assertEqual(Review.objects.first().rating, 5)
+        self.assertEqual(Review.objects.first().description, "Great service!")
