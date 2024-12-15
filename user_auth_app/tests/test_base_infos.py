@@ -56,4 +56,22 @@ class ReviewTests(APITestCase):
         response = self.client.post(self.review_url, payload, format="json")
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data["detail"], "You have already reviewed this business user.")
-        self.assertEqual(Review.objects.count(), 1)  # Ensure no duplicate reviews were added        
+        self.assertEqual(Review.objects.count(), 1) 
+
+
+    def test_create_review_unauthenticated(self):
+        """
+        Test that unauthenticated users cannot create a review.
+        """
+        self.client.credentials()
+        
+        payload = {
+            "business_user": self.business_user.id,
+            "rating": 5,
+            "description": "Great service!"
+        }
+        
+        response = self.client.post(self.review_url, payload, format="json")
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(Review.objects.count(), 0)
+

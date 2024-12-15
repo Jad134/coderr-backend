@@ -151,6 +151,8 @@ class ReviewViewSet(viewsets.ViewSet):
     
     queryset = Review.objects.all()
 
+    permission_classes = [IsAuthenticated, IsCustomer]
+
     def retrieve(self, request, pk=None):
         review= get_object_or_404(self.queryset, pk=pk)
         serializer = ReviewSerializer(review)
@@ -170,7 +172,7 @@ class ReviewViewSet(viewsets.ViewSet):
         POST /reviews/
         Create a review for a business user. Only customers can create reviews.
         """
-        self.permission_classes = [IsAuthenticated, IsCustomer]
+
         business_user = self.get_valid_business_user(request)
         if isinstance(business_user, Response):
             return business_user
