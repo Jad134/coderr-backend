@@ -75,3 +75,18 @@ class ReviewTests(APITestCase):
         self.assertEqual(response.status_code, 401)
         self.assertEqual(Review.objects.count(), 0)
 
+
+    def test_create_review_invalid_business_user(self):
+        """
+        Test that creating a review for a non-existent business user returns an error.
+        """
+        payload = {
+            "business_user": 9990,  # Non-existent ID
+            "rating": 5,
+            "description": "Great service!"
+        }
+        
+        response = self.client.post(self.review_url, payload, format="json")
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("detail", response.data)
+        self.assertEqual(Review.objects.count(), 0)
