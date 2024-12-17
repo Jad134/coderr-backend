@@ -86,3 +86,12 @@ class OrderViewSetTest(APITestCase):
      self.assertEqual(response.data['price'], "199.99")
      self.assertEqual(response.data['status'], "in_progress")
 
+
+    def test_list_orders(self):
+        """
+        Test the /List method
+        """
+        response = self.client.get(reverse("orders.list-list"))  
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 2)  
+        self.assertEqual(response.data[0]["title"], "Order Title")
