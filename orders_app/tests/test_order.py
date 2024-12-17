@@ -118,3 +118,20 @@ class OrderViewSetTest(APITestCase):
         response = self.client.patch(update_url, data, format="json")
         self.assertEqual(response.status_code, 400)
         self.assertIn("Ungültiger Status", response.data["detail"])
+
+
+    def test_order_creation_without_offer_detail(self):
+        """
+        Tests the creation of an order without `offer_detail_id`.
+        """
+        create_url = reverse("orders.list-list")  
+        order_data = {
+            "title": "New Order",
+            "price": Decimal("150.00"),
+            "offer_type": "basic",
+            "status": "in_progress",
+        }
+
+        response = self.client.post(create_url, order_data, format="json")
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('Das Feld "offer_detail_id" ist erforderlich.', response.data["detail"])
