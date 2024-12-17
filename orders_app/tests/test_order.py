@@ -95,3 +95,26 @@ class OrderViewSetTest(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 2)  
         self.assertEqual(response.data[0]["title"], "Order Title")
+
+    def test_partial_update_status(self):
+        """
+        Tests the update of the status of an order (PATCH).
+        """
+        update_url = reverse("orders.list-detail", args=[self.order1.id])  
+        data = {"status": "completed"}
+
+        response = self.client.patch(update_url, data, format="json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["status"], "completed")
+
+
+    def test_partial_update_invalid_status(self):
+        """
+        Tests the validation of invalid status values.
+        """
+        update_url = reverse("orders.list-detail", args=[self.order1.id])
+        data = {"status": "invalid_status"}  
+
+        response = self.client.patch(update_url, data, format="json")
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("Ungültiger Status", response.data["detail"])
