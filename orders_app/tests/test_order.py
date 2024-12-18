@@ -12,7 +12,7 @@ class OrderViewSetTest(APITestCase):
     def setUp(self):
         self.user_model = get_user_model()
         self.user1 = self.user_model.objects.create_user(username="user1", password="password123", type='customer')
-        self.user2 = self.user_model.objects.create_user(username="user2", password="password123")
+        self.user2 = self.user_model.objects.create_user(username="user2", password="password123",  type='business')
         self.token = Token.objects.create(user=self.user1)
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.token.key)
 
@@ -135,3 +135,15 @@ class OrderViewSetTest(APITestCase):
         response = self.client.post(create_url, order_data, format="json")
         self.assertEqual(response.status_code, 400)
         self.assertIn('Das Feld "offer_detail_id" ist erforderlich.', response.data["detail"])
+
+
+    def test_order_count_for_business_user(self):
+        """
+        Tested the endpoint for counting orders in progress for a business user.
+        """
+        count_url = reverse("order-count", args=[self.user2.id])  
+        response = self.client.get(count_url)
+    
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("order_count", response.data, "Key 'order_count' fehlt in der Antwort.")
+        self.assertEqual(response.data["order_count"], 1)
