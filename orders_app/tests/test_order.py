@@ -147,3 +147,16 @@ class OrderViewSetTest(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("order_count", response.data, "Key 'order_count' fehlt in der Antwort.")
         self.assertEqual(response.data["order_count"], 1)
+
+
+    def test_completed_order_count_for_business_user(self):
+        """
+        Tests the endpoint for counting completed orders of a business user.
+        """
+        self.order2.status = "completed"
+        self.order2.save()
+
+        count_url = reverse("completed-order-count", args=[self.user2.id])
+        response = self.client.get(count_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["completed_order_count"], 1)
