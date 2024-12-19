@@ -160,3 +160,13 @@ class OrderViewSetTest(APITestCase):
         response = self.client.get(count_url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["completed_order_count"], 1)
+
+
+    def test_completed_order_count_for_nonexistent_business_user(self):
+        """
+        Tests the completed orders endpoint of a non-existent business user.
+        """
+        count_url = reverse("completed-order-count", args=[9999])  # Nicht existierende ID
+        response = self.client.get(count_url)
+        self.assertEqual(response.status_code, 404)
+        self.assertIn("Business user not found", response.data["error"])
