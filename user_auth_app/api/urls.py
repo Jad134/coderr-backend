@@ -1,6 +1,5 @@
 from django.urls import path, include
-from user_auth_app.api.views import RegisterUserView, LoginView, UserViewSet, BusinessUserViewSet, CustomerUserViewSet, ReviewViewSet, BaseInfoViewSet, ReviewRetrieveView
-from rest_framework.authtoken.views import obtain_auth_token
+from user_auth_app.api.views import RegisterUserView, LoginView, UserViewSet, BusinessUserViewSet, CustomerUserViewSet, ReviewViewSet, BaseInfoViewSet
 from rest_framework import routers
 
 router= routers.SimpleRouter()
@@ -14,5 +13,4 @@ urlpatterns = [
     path('', include(router.urls)),
     path('registration/', RegisterUserView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
-    path('reviews/<int:pk>',  ReviewRetrieveView.as_view(), name= 'review-retrieve')
 ]
