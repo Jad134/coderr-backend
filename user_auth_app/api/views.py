@@ -13,6 +13,8 @@ from rest_framework.permissions import IsAuthenticated
 from .permissions import IsCustomer
 from django.db.models import Avg
 from offers_app.models import Offer
+from rest_framework import mixins, viewsets, generics
+from rest_framework.viewsets import GenericViewSet
 
 
 
@@ -153,10 +155,10 @@ class ReviewViewSet(viewsets.ViewSet):
 
     permission_classes = [IsAuthenticated, IsCustomer]
 
-    def retrieve(self, request, pk=None):
-        review= get_object_or_404(self.queryset, pk=pk)
-        serializer = ReviewSerializer(review)
-        return Response (serializer.data)
+    # def retrieve(self, request, pk=None):
+    #     review= get_object_or_404(self.queryset, pk=pk)
+    #     serializer = ReviewSerializer(review)
+    #     return Response (serializer.data)
 
     def list(self, request):
         """
@@ -245,6 +247,15 @@ class ReviewViewSet(viewsets.ViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+
+
+class ReviewRetrieveView(mixins.RetrieveModelMixin, generics.GenericAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
 
 class BaseInfoViewSet(viewsets.ViewSet):
     """
