@@ -154,20 +154,19 @@ class ReviewViewSet(viewsets.ViewSet):
     
     queryset = Review.objects.all()
 
-    permission_classes = [IsAuthenticated, IsCustomer]
-
     def get_permissions(self):
         """
-        Overrides default permissions for specific actions.
+        Custom permission logic for different actions.
         """
-        if self.action == 'retrieve':
-            return [AllowAny()]  
+        if self.action in ['list', 'retrieve']:
+            return [AllowAny()]
         return [permission() for permission in self.permission_classes]
+
+    permission_classes = [IsAuthenticated, IsCustomer]
 
     def retrieve(self, request, pk=None):
         """
         GET /reviews/<pk>/
-        Retrieve a single review without permission requirements.
         """
         review = get_object_or_404(self.queryset, pk=pk)
         serializer = ReviewSerializer(review)
