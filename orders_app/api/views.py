@@ -18,12 +18,24 @@ class OrderViewSet(viewsets.ViewSet):
         return Order.objects.all()
 
     def list(self, request):
-        """
-        Get order list with queryset for filter methods in Frontend Code e.g only show own offers with creator_id
-        """
-        queryset = self.get_queryset()
-        serializer = OrderSerializer(queryset, many=True)
-        return Response(serializer.data)
+       """
+       GET /orders/
+       List orders associated with the logged-in user.
+       """
+       user = request.user
+   
+       if user.type == "customer":
+           queryset = self.get_queryset().filter(customer_user=user)
+       elif user.type == "business":
+           queryset = self.get_queryset().filter(business_user=user)
+       else:
+           return Response(
+               {"detail": "Ungültiger Benutzertyp."},
+               status=status.HTTP_403_FORBIDDEN,
+           )
+
+       serializer = OrderSerializer(queryset, many=True)
+       return Response(serializer.data)
     
 
     def create(self, request):
