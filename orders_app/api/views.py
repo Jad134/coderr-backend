@@ -111,6 +111,17 @@ class OrderViewSet(viewsets.ViewSet):
 
         serializer = OrderSerializer(order)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+    def retrieve(self, request, pk=None):
+        """
+        GET /orders/{id}/
+        Retrieve the details of a specific order by its ID.
+        """
+        queryset = self.get_queryset()
+        order = get_object_or_404(queryset, pk=pk)
+        serializer = OrderSerializer(order)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
 
 
