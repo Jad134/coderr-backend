@@ -38,6 +38,16 @@ class RegisterUserView(APIView):
         try:
             user = self.create_user(data)
             token, created = Token.objects.get_or_create(user=user)
+            return self.successRegistrationResponse(user, token)
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+
+    def successRegistrationResponse(self, user, token):
             return Response(
                 {
                     "message": "Erfolgreich registriert.",
@@ -46,11 +56,6 @@ class RegisterUserView(APIView):
                     "token": token.key, 
                 },
                 status=status.HTTP_201_CREATED
-            )
-        except Exception as e:
-            return Response(
-                {"error": str(e)},
-                status=status.HTTP_400_BAD_REQUEST
             )
 
     def check_password(self, password, repeated_password):
