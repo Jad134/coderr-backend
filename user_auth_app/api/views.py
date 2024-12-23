@@ -37,8 +37,14 @@ class RegisterUserView(APIView):
 
         try:
             user = self.create_user(data)
+            token, created = Token.objects.get_or_create(user=user)
             return Response(
-                {"message": "Erfolgreich registriert.", "user_id": user.id},
+                {
+                    "message": "Erfolgreich registriert.",
+                    "user_id": user.id,
+                    "username": user.username,
+                    "token": token.key, 
+                },
                 status=status.HTTP_201_CREATED
             )
         except Exception as e:
