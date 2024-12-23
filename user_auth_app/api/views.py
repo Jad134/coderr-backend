@@ -14,7 +14,7 @@ from .permissions import IsCustomer
 from django.db.models import Avg
 from offers_app.models import Offer
 from rest_framework.permissions import AllowAny
-
+from django.db.utils import IntegrityError
 
 
 
@@ -39,6 +39,17 @@ class RegisterUserView(APIView):
             user = self.create_user(data)
             token, created = Token.objects.get_or_create(user=user)
             return self.successRegistrationResponse(user, token)
+
+        except IntegrityError as e:
+            if "UNIQUE constraint failed" in str(e):
+                return Response(
+                    {"error": "Benutzername existiert bereits."},
+                status=status.HTTP_400_BAD_REQUEST
+                )
+            return Response(
+            {"error": "Ein Datenbankfehler ist aufgetreten."},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
         except Exception as e:
             return Response(
