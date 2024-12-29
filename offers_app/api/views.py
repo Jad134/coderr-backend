@@ -46,8 +46,15 @@ class OfferViewSet(viewsets.ViewSet):
                 Q(title__icontains=search) | Q(description__icontains=search)
             )
 
-
-
+        ordering = request.query_params.get('ordering', None)
+        valid_ordering_fields = [
+            'min_delivery_time', '-min_delivery_time',
+            'price', '-price',
+            'updated_at', '-updated_at',
+            'min_price', '-min_price'
+        ]
+        if ordering in valid_ordering_fields:
+               queryset = queryset.order_by(ordering)
 
 
         paginator = self.pagination_class()
