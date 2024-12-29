@@ -6,6 +6,7 @@ from offers_app.models import Offer, OfferDetail
 from rest_framework.response import Response
 from rest_framework.filters import OrderingFilter
 from rest_framework.pagination import PageNumberPagination
+from django.db.models import Q
 
 
 class OfferPagination(PageNumberPagination):
@@ -38,6 +39,16 @@ class OfferViewSet(viewsets.ViewSet):
         max_delivery_time = request.query_params.get('max_delivery_time')
         if max_delivery_time:
             queryset = queryset.filter(min_delivery_time__lte=max_delivery_time)
+
+        search = request.query_params.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(title__icontains=search) | Q(description__icontains=search)
+            )
+
+
+
+
 
         paginator = self.pagination_class()
         page = paginator.paginate_queryset(queryset, request)
