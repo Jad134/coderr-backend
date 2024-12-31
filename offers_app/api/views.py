@@ -10,8 +10,8 @@ from django.db.models import Q
 
 
 class OfferPagination(PageNumberPagination):
-    page_size = 6 # Anzahl der Einträge pro Seite
-
+    page_size = 6 
+    
 class OfferViewSet(viewsets.ViewSet):
     pagination_class = OfferPagination
 
