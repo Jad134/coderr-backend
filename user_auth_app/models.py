@@ -53,7 +53,7 @@ class Review(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ('business_user', 'reviewer')  # Ein Reviewer kann nur eine Bewertung pro Business User abgeben
+        unique_together = ('business_user', 'reviewer')  
         ordering = ['-updated_at']
 
     def __str__(self):
