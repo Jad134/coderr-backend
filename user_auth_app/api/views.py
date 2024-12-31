@@ -128,6 +128,7 @@ class LoginView(ObtainAuthToken):
             "type": user.type, 
         }, status=status.HTTP_200_OK)
     
+
 class UserViewSet(viewsets.ViewSet):
     queryset = CustomUser.objects.all()
     permission_classes = [IsAuthenticated]
@@ -151,6 +152,7 @@ class UserViewSet(viewsets.ViewSet):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class BusinessUserViewSet(viewsets.ViewSet):
     def list(self, request):
         business_users = CustomUser.objects.filter(type=CustomUser.BUSINESS) 
@@ -167,8 +169,6 @@ class CustomerUserViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
     
-
-
 class ReviewViewSet(viewsets.ViewSet):
     """
     A simple ViewSet for get or creating reviews.
@@ -281,7 +281,6 @@ class ReviewViewSet(viewsets.ViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-
 
 class BaseInfoViewSet(viewsets.ViewSet):
     """

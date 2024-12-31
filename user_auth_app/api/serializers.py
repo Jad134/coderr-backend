@@ -2,7 +2,6 @@ from rest_framework import serializers
 from user_auth_app.models import CustomUser,Review
 
 class UserSerializer(serializers.ModelSerializer):
-
     user = serializers.IntegerField(source='id', read_only=True)
     class Meta:
         model = CustomUser
